@@ -1,0 +1,22 @@
+local function unlimitedAmmoLoop()
+    while true do
+        pcall(function()
+            local Character = game:GetService("Players").LocalPlayer.Character
+            if Character then
+                for _, weapon in ipairs({"primary", "secondary"}) do
+                    if Character:FindFirstChild(weapon) then
+                        firesignal(
+                            Character[weapon].ClientEvents.SetLocalAmmo.OnClientEvent,
+                            Character[weapon],
+                            math.huge,
+                            true
+                        )
+                    end
+                end
+            end
+        end)
+        wait(0.6) -- Adjust timing as needed
+    end
+end
+
+unlimitedAmmoLoop()
