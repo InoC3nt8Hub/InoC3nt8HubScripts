@@ -1,0 +1,239 @@
+-- Modern Roblox UI Library
+-- Dark Glass Style + Tabs + Toggle System
+
+local Library = {}
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- Screen GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ModernUILibrary"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+
+-- Main Window
+function Library:CreateWindow(Settings)
+
+    local Window = {}
+
+    local Main = Instance.new("Frame")
+    Main.Size = UDim2.new(0,420,0,320)
+    Main.Position = UDim2.new(0.5,-210,0.5,-160)
+    Main.BackgroundColor3 = Color3.fromRGB(18,18,22)
+    Main.BorderSizePixel = 0
+    Main.Parent = ScreenGui
+
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0,14)
+    Corner.Parent = Main
+
+
+    -- Shadow
+    local Shadow = Instance.new("UIStroke")
+    Shadow.Color = Color3.fromRGB(60,60,70)
+    Shadow.Thickness = 1
+    Shadow.Parent = Main
+
+
+    -- Top Bar
+    local Top = Instance.new("Frame")
+    Top.Size = UDim2.new(1,0,0,45)
+    Top.BackgroundTransparency = 1
+    Top.Parent = Main
+
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(.7,0,1,0)
+    Title.Position = UDim2.new(0,15,0,0)
+    Title.BackgroundTransparency = 1
+    Title.Text = Settings.Name or "Modern Menu"
+    Title.TextColor3 = Color3.new(1,1,1)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 16
+    Title.TextXAlignment = Left
+    Title.Parent = Top
+
+
+    -- Close Button
+    local Close = Instance.new("TextButton")
+    Close.Size = UDim2.new(0,35,0,30)
+    Close.Position = UDim2.new(1,-45,0,7)
+    Close.Text = "✕"
+    Close.TextSize = 18
+    Close.TextColor3 = Color3.fromRGB(255,80,80)
+    Close.BackgroundTransparency = 1
+    Close.Parent = Top
+
+
+    Close.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
+
+    -- Tabs
+    local TabBar = Instance.new("Frame")
+    TabBar.Size = UDim2.new(0,110,1,-55)
+    TabBar.Position = UDim2.new(0,10,0,50)
+    TabBar.BackgroundTransparency = 1
+    TabBar.Parent = Main
+
+
+    local Content = Instance.new("Frame")
+    Content.Size = UDim2.new(1,-140,1,-55)
+    Content.Position = UDim2.new(0,130,0,50)
+    Content.BackgroundTransparency = 1
+    Content.Parent = Main
+
+
+    local Tabs = {}
+
+
+    function Window:AddTab(Name)
+
+        local Tab = {}
+
+        local Button = Instance.new("TextButton")
+        Button.Size = UDim2.new(1,0,0,35)
+        Button.BackgroundColor3 = Color3.fromRGB(30,30,35)
+        Button.Text = Name
+        Button.TextColor3 = Color3.new(1,1,1)
+        Button.Font = Enum.Font.Gotham
+        Button.TextSize = 14
+        Button.Parent = TabBar
+
+
+        local Corner = Instance.new("UICorner")
+        Corner.Parent = Button
+
+
+        local Page = Instance.new("Frame")
+        Page.Size = UDim2.new(1,0,1,0)
+        Page.BackgroundTransparency = 1
+        Page.Visible = false
+        Page.Parent = Content
+
+
+        local Layout = Instance.new("UIListLayout")
+        Layout.Padding = UDim.new(0,10)
+        Layout.Parent = Page
+
+
+        Button.MouseButton1Click:Connect(function()
+
+            for _,v in pairs(Content:GetChildren()) do
+                if v:IsA("Frame") then
+                    v.Visible = false
+                end
+            end
+
+            Page.Visible = true
+
+        end)
+
+
+        function Tab:AddToggle(Name, Callback)
+
+            local Toggle = Instance.new("TextButton")
+            Toggle.Size = UDim2.new(1,0,0,45)
+            Toggle.BackgroundColor3 = Color3.fromRGB(30,30,35)
+            Toggle.Text = ""
+            Toggle.Parent = Page
+
+
+            local Corner = Instance.new("UICorner")
+            Corner.Parent = Toggle
+
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(.7,0,1,0)
+            Label.Position = UDim2.new(0,15,0,0)
+            Label.BackgroundTransparency = 1
+            Label.Text = Name
+            Label.TextColor3 = Color3.new(1,1,1)
+            Label.Font = Enum.Font.Gotham
+            Label.TextSize = 14
+            Label.TextXAlignment = Left
+            Label.Parent = Toggle
+
+
+            local Switch = Instance.new("Frame")
+            Switch.Size = UDim2.new(0,45,0,22)
+            Switch.Position = UDim2.new(1,-60,.5,-11)
+            Switch.BackgroundColor3 = Color3.fromRGB(70,70,70)
+            Switch.Parent = Toggle
+
+
+            local SwitchCorner = Instance.new("UICorner")
+            SwitchCorner.CornerRadius = UDim.new(1,0)
+            SwitchCorner.Parent = Switch
+
+
+            local Circle = Instance.new("Frame")
+            Circle.Size = UDim2.new(0,18,0,18)
+            Circle.Position = UDim2.new(0,2,.5,-9)
+            Circle.BackgroundColor3 = Color3.new(1,1,1)
+            Circle.Parent = Switch
+
+
+            local CircleCorner = Instance.new("UICorner")
+            CircleCorner.CornerRadius = UDim.new(1,0)
+            CircleCorner.Parent = Circle
+
+
+            local Enabled = false
+
+
+            Toggle.MouseButton1Click:Connect(function()
+
+                Enabled = not Enabled
+
+                TweenService:Create(
+                    Circle,
+                    TweenInfo.new(.25),
+                    {
+                        Position = Enabled 
+                        and UDim2.new(1,-20,.5,-9)
+                        or UDim2.new(0,2,.5,-9)
+                    }
+                ):Play()
+
+
+                TweenService:Create(
+                    Switch,
+                    TweenInfo.new(.25),
+                    {
+                        BackgroundColor3 = Enabled 
+                        and Color3.fromRGB(0,170,255)
+                        or Color3.fromRGB(70,70,70)
+                    }
+                ):Play()
+
+
+                if Callback then
+                    Callback(Enabled)
+                end
+
+            end)
+
+        end
+
+
+        Page.Visible = (#Tabs == 0)
+        table.insert(Tabs,Tab)
+
+        return Tab
+
+    end
+
+
+    return Window
+
+end
+
+
